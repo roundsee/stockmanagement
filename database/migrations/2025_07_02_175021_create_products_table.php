@@ -28,7 +28,7 @@ return new class extends Migration
             $table->string('status')->default('pending');
             $table->string('active')->default('1');
 
-            // Foreign Key 
+            // Foreign Key
             $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
             $table->foreign('brand_id')->references('id')->on('brands')->onDelete('cascade');
             $table->foreign('warehouse_id')->references('id')->on('ware_houses')->onDelete('cascade');

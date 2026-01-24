@@ -47,91 +47,106 @@
             }
         });
 
-        function fetchProducts(query, warehouseId) {
-            $.get(productSearchUrl, {
-                query,
-                warehouse_id: warehouseId
-            }, function(data) {
-                productList.html("");
-                if (data.length > 0) {
-                    data.forEach(product => {
-                        const item = `
-                        <a href="#" class="list-group-item list-group-item-action product-item"
-                            data-id="${product.id}"
-                            data-code="${product.code}"
-                            data-name="${product.name}"
-                            data-cost="${product.price}"
-                            data-stock="${product.product_qty}">
-                            ${product.code} - ${product.name}
-                        </a>`;
-                        productList.append(item);
-                    });
+        function formatRupiah(angka) {
+    return new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+        minimumFractionDigits: 0
+    }).format(angka);
+}
+function fetchProducts(query, warehouseId) {
+    $.get(productSearchUrl, {
+        query,
+        warehouse_id: warehouseId
+    }, function(data) {
+        productList.html("");
+        if (data.length > 0) {
+            data.forEach(product => {
+                // Ambil unit dari relasi (asumsi Controller sudah pakai with('unit'))
+                const unitName = (product.unit && product.unit.short_name) ? product.unit.short_name : '-';
 
-                    $(".product-item").on("click", function(e) {
-                        e.preventDefault();
-                        addProductToTable($(this));
-                    });
-                } else {
-                    productList.html('<p class="text-muted">No Product Found</p>');
-                }
-            });
-        }
-
-        function addProductToTable($product) {
-            const productId = $product.data("id");
-            const productCode = $product.data("code");
-            const productName = $product.data("name");
-            const netUnitCost = parseFloat($product.data("cost"));
-            const stock = parseInt($product.data("stock"));
-
-            if ($(`tr[data-id="${productId}"]`).length > 0) {
-                showToast("Product already added.");
-                return;
-            }
-
-            const row = `
-            <tr data-id="${productId}">
-                <td>
-                    ${productCode} - ${productName}
-                    <button type="button" class="btn btn-primary btn-sm edit-discount-btn"
-                        data-id="${productId}" 
-                        data-name="${productName}" 
-                        data-cost="${netUnitCost}">
-                        <span class="mdi mdi-book-edit"></span>
-                    </button>
-                    <input type="hidden" name="products[${productId}][id]" value="${productId}">
-                    <input type="hidden" name="products[${productId}][name]" value="${productName}">
-                    <input type="hidden" name="products[${productId}][code]" value="${productCode}">
-                </td>
-                <td>
-                    ${netUnitCost.toFixed(2)}
-                    <input type="hidden" name="products[${productId}][cost]" value="${netUnitCost}">
-                </td>
-                <td style="color:#ffc121">${stock}</td>
-                <td>
-                    <div class="input-group">
-                        <button class="btn btn-outline-secondary decrement-qty" type="button">−</button>
-                        <input type="text" class="form-control text-center qty-input"
-                            name="products[${productId}][quantity]" value="1" min="1" max="${stock}"
-                            data-cost="${netUnitCost}" style="width: 30px;">
-                        <button class="btn btn-outline-secondary increment-qty" type="button">+</button>
+                const item = `
+                <a href="#" class="list-group-item list-group-item-action product-item"
+                    data-id="${product.id}"
+                    data-code="${product.code}"
+                    data-name="${product.name}"
+                    data-cost="${product.price}"
+                    data-stock="${product.product_qty}"
+                    data-unit="${unitName}"> <div class="d-flex justify-content-between">
+                        <span>${product.code} - ${product.name}</span>
+                        <small class="text-muted">${unitName}</small>
                     </div>
-                </td>
-                <td>
-                    <input type="number" class="form-control discount-input"
-                        name="products[${productId}][discount]" value="0" min="0" style="width:100px">
-                    <input type="hidden" name="products[${productId}][discount_type]" value="fixed">
-                </td>
-                <td class="subtotal">${netUnitCost.toFixed(2)}</td>
-                <td><button class="btn btn-danger btn-sm remove-product"><span class="mdi mdi-delete-circle mdi-18px"></span></button></td>
-            </tr>`;
+                </a>`;
+                productList.append(item);
+            });
 
-            orderItemsTableBody.append(row);
-            productList.html("");
-            productSearchInput.val("");
-            updateEvents();
-            updateGrandTotal();
+            $(".product-item").off("click").on("click", function(e) {
+                e.preventDefault();
+                addProductToTable($(this));
+            });
+        } else {
+            productList.html('<p class="text-muted">No Product Found</p>');
         }
+    });
+}
+
+function addProductToTable($product) {
+    const productId = $product.data("id");
+    const productCode = $product.data("code");
+    const productName = $product.data("name");
+    const productUnit = $product.data("unit"); // AMBIL UNIT
+    const netUnitCost = parseFloat($product.data("cost"));
+    const stock = parseInt($product.data("stock"));
+
+    if ($(`tr[data-id="${productId}"]`).length > 0) {
+        showToast("Product already added.");
+        return;
+    }
+
+    const row = `
+    <tr data-id="${productId}">
+        <td>
+            ${productCode} - ${productName}
+            <button type="button" class="btn btn-primary btn-sm edit-discount-btn"
+                data-id="${productId}"
+                data-name="${productName}"
+                data-cost="${netUnitCost}">
+                <span class="mdi mdi-book-edit"></span>
+            </button>
+            <input type="hidden" name="products[${productId}][id]" value="${productId}">
+        </td>
+        <td>
+            ${formatRupiah(netUnitCost)}
+            <input type="hidden" name="products[${productId}][cost]" value="${netUnitCost}">
+        </td>
+        <td style="color:#ffc121">
+            ${stock} <small class="text-muted">${productUnit}</small>
+        </td>
+        <td>
+            <div class="input-group">
+                <button class="btn btn-outline-secondary decrement-qty" type="button">−</button>
+                <input type="text" class="form-control text-center qty-input"
+                    name="products[${productId}][quantity]" value="1" min="1" max="${stock}"
+                    data-cost="${netUnitCost}" style="width: 40px;">
+                <button class="btn btn-outline-secondary increment-qty" type="button">+</button>
+                <span class="input-group-text bg-light" style="font-size: 11px;">${productUnit}</span>
+            </div>
+        </td>
+        <td>
+            <input type="number" class="form-control discount-input"
+                name="products[${productId}][discount]" value="0" min="0" style="width:100px">
+            <input type="hidden" name="products[${productId}][discount_type]" value="fixed">
+        </td>
+        <td class="subtotal">${netUnitCost.toFixed(2)}</td>
+        <td><button class="btn btn-danger btn-sm remove-product"><span class="mdi mdi-delete-circle mdi-18px"></span></button></td>
+    </tr>`;
+
+    orderItemsTableBody.append(row);
+    productList.html("");
+    productSearchInput.val("");
+    updateEvents();
+    updateGrandTotal();
+}
 
         function updateEvents() {
             $(".qty-input").off("input").on("input", function() {
@@ -189,31 +204,31 @@
         }
 
         function updateDueAmount() {
-            const grandTotal = parseFloat($("input[name='grand_total']").val()) || 0;
-            const paidAmount = parseFloat($("input[name='paid_amount']").val()) || 0;
-            let due = grandTotal - paidAmount;
-            if (due < 0) due = 0;
+    const grandTotal = parseFloat($("input[name='grand_total']").val()) || 0;
+    const paidAmount = parseFloat($("input[name='paid_amount']").val()) || 0;
+    let due = grandTotal - paidAmount;
+    if (due < 0) due = 0;
 
-            $("#dueAmount").text(`₹ ${due.toFixed(2)}`);
-            $("input[name='due_amount']").val(due.toFixed(2));
-        }
+    $("#dueAmount").text(formatRupiah(due)); // PAKAI HELPER
+    $("input[name='due_amount']").val(due.toFixed(2));
+}
 
-        function updateGrandTotal() {
-            let grandTotal = 0;
-            $(".subtotal").each(function() {
-                grandTotal += parseFloat($(this).text()) || 0;
-            });
+function updateGrandTotal() {
+    let subtotalSum = 0;
+    $(".subtotal").each(function() {
+        subtotalSum += parseFloat($(this).text()) || 0;
+    });
 
-            const discount = parseFloat($("#inputDiscount").val()) || 0;
-            const shipping = parseFloat($("#inputShipping").val()) || 0;
-            grandTotal = grandTotal - discount + shipping;
-            if (grandTotal < 0) grandTotal = 0;
+    const discount = parseFloat($("#inputDiscount").val()) || 0;
+    const shipping = parseFloat($("#inputShipping").val()) || 0;
+    let grandTotal = subtotalSum - discount + shipping;
+    if (grandTotal < 0) grandTotal = 0;
 
-            $("#grandTotal").text(`₹ ${grandTotal.toFixed(2)}`);
-            $("input[name='grand_total']").val(grandTotal.toFixed(2));
+    $("#grandTotal").text(formatRupiah(grandTotal)); // PAKAI HELPER
+    $("input[name='grand_total']").val(grandTotal.toFixed(2));
 
-            updateDueAmount();
-        }
+    updateDueAmount();
+}
 
         $("#inputDiscount, #inputShipping").on("input", function() {
             updateGrandTotal();
@@ -304,10 +319,10 @@
 
         // Display discount/shipping live update
         $("#inputDiscount").on("input", function() {
-            $("#displayDiscount").text(`₹ ${parseFloat(this.value || 0).toFixed(2)}`);
+            $("#displayDiscount").text(`Rp ${parseFloat(this.value || 0).toFixed(2)}`);
         });
         $("#inputShipping").on("input", function() {
-            $("#shippingDisplay").text(`₹ ${parseFloat(this.value || 0).toFixed(2)}`);
+            $("#shippingDisplay").text(`Rp ${parseFloat(this.value || 0).toFixed(2)}`);
         });
 
         // Toast functions
@@ -358,14 +373,22 @@
                     }
                 },
                 error: function(xhr) {
-                    $('#spinner').addClass('d-none');
-                    const errors = xhr.responseJSON.errors;
-                    if (errors) {
-                        Object.values(errors).forEach(err => showToast(err[0]));
-                    } else {
-                        showToast("Something went wrong. Please try again.");
+                        $('#spinner').addClass('d-none');
+
+                        // 1. Ambil data JSON dari response
+                        const res = xhr.responseJSON;
+
+                        if (res && res.errors) {
+                            // Jika error validasi (422)
+                            Object.values(res.errors).forEach(err => showToast(err[0]));
+                        } else if (res && res.message) {
+                            // Jika error dari Exception catch di Controller (500)
+                            showToast(res.message);
+                        } else {
+                            // Jika error tidak terduga (misal: koneksi terputus)
+                            showToast("Something went wrong. Please try again.");
+                        }
                     }
-                }
             });
         });
     });

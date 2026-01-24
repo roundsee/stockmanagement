@@ -9,10 +9,11 @@ use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\Supplier;
 use App\Models\WareHouse;
+use App\Models\Unit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Traits\ImageUploadTrait;
-
+use Log;
 class ProductController extends Controller
 {
 
@@ -21,7 +22,8 @@ class ProductController extends Controller
     public function index()
     {
         $categories = Category::latest()->get();
-        return view('admin.category.index', compact('categories'));
+
+        return view('admin.category.index', compact('categories','units'));
     }
     public function store(Request $request)
     {
@@ -99,18 +101,21 @@ class ProductController extends Controller
         $categories = Category::all();
         $brands = Brand::all();
         $suppliers = Supplier::all();
+        $units = Unit::all();
         $warehouses = WareHouse::all();
-        return view('admin.product.create', compact('categories', 'brands', 'suppliers', 'warehouses'));
+        return view('admin.product.create', compact('categories', 'brands', 'suppliers', 'warehouses','units'));
     }
 
 
     public function productStore(Request $request)
     {
+        Log::info($request);
         try {
             $validatedData = $request->validate([
                 'name'          => 'required|string|max:255',
                 'code'          => 'required|string|max:100|unique:products,code',
                 'category_id'   => 'required|exists:categories,id',
+                'unit_id'       => 'required|exists:units,id',
                 'brand_id'      => 'required|exists:brands,id',
                 'price'         => 'nullable|numeric|min:0|max:999999.99',
                 'stock_alert'   => 'required|integer|min:0',
@@ -132,6 +137,7 @@ class ProductController extends Controller
             $product->name          = $request->name;
             $product->code          = $request->code;
             $product->category_id   = $request->category_id;
+            $product->unit_id       = $request->unit_id;
             $product->brand_id      = $request->brand_id;
             $product->warehouse_id  = $request->warehouse_id;
             $product->supplier_id   = $request->supplier_id;

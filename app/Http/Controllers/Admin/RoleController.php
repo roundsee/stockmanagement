@@ -12,6 +12,7 @@ use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Validator;
 use Spatie\Permission\PermissionRegistrar;
 use Illuminate\Support\Facades\Hash;
+use Log;
 
 class RoleController extends Controller
 {
@@ -126,6 +127,7 @@ class RoleController extends Controller
                     'alert-type' => 'success',
                 ]);
         } catch (\Throwable $e) {
+            Log::info($e);
             report($e);
 
             return back()
@@ -214,7 +216,7 @@ class RoleController extends Controller
         }
     }
 
-    //  
+    //
     function addRoleInPermission()
     {
         $roles = Role::all();
@@ -228,18 +230,19 @@ class RoleController extends Controller
     }
     // Store ROle In Permission
     function storeRoleInPermission(Request $request)
-    {
-        // dd($request->all());
-
+{
+    try {
         $request->validate([
             'role_id' => 'required|exists:roles,id',
             'permission' => 'required|array|min:1',
             'permission.*' => 'exists:permissions,id',
         ]);
+
+        DB::beginTransaction(); // Gunakan transaction agar data aman
+
         DB::table('role_has_permissions')->where('role_id', $request->role_id)->delete();
 
         $data = [];
-
         foreach ($request->permission as $permissionId) {
             $data[] = [
                 'role_id' => $request->role_id,
@@ -247,11 +250,27 @@ class RoleController extends Controller
             ];
         }
 
-
         DB::table('role_has_permissions')->insert($data);
 
+        DB::commit();
+
         return response()->json(['message' => 'Permissions assigned successfully.']);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+
+        // Mencatat pesan error ke storage/logs/laravel.log
+        Log::error('Error saat assign permission: ' . $e->getMessage());
+
+        // Opsional: Mencatat seluruh stack trace untuk debug mendalam
+        // Log::info($e);
+
+        return response()->json([
+            'message' => 'Terjadi kesalahan sistem.',
+            'error' => $e->getMessage() // Jangan tampilkan ini di production (keamanan)
+        ], 500);
     }
+}
 
     function listAllRoleInPermission()
     {
@@ -271,19 +290,34 @@ class RoleController extends Controller
 
 
     public function updateRoleInPermission(Request $request, $id)
-    {
+{
+    try {
         $request->validate([
             'permission' => 'required|array',
         ]);
 
         $role = Role::findOrFail($id);
 
+        // Ambil nama permission berdasarkan ID yang dikirim
         $permissions = Permission::whereIn('id', $request->permission)->pluck('name')->toArray();
 
+        // Proses Sinkronisasi
         $role->syncPermissions($permissions);
 
         return response()->json(['message' => 'Permissions updated successfully.']);
+
+    } catch (Exception $e) {
+        // Catat error ke file log
+        Log::error('Gagal Update Permission untuk Role ID: ' . $id);
+        Log::error('Pesan Error: ' . $e->getMessage());
+        Log::error('Stack Trace: ' . $e->getTraceAsString());
+
+        return response()->json([
+            'message' => 'Terjadi kesalahan saat memperbarui permission.',
+            'debug' => $e->getMessage() // Munculkan ini di postman/console untuk cek cepat
+        ], 500);
     }
+}
 
 
 

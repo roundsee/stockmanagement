@@ -35,7 +35,7 @@
             grandTotal = grandTotal - discount + shipping;
             grandTotal = Math.max(grandTotal, 0);
 
-            $('#grandTotal').text(`₹ ${grandTotal.toFixed(2)}`);
+            $('#grandTotal').text(`Rp ${grandTotal.toFixed(2)}`);
             grandTotalInput.val(grandTotal.toFixed(2));
 
             updateDueAmount();
@@ -48,7 +48,7 @@
             let due = grandTotal - paidAmount;
             if (due < 0) due = 0;
 
-            $("#dueAmount").text(`₹ ${due.toFixed(2)}`);
+            $("#dueAmount").text(`Rp ${due.toFixed(2)}`);
             $("input[name='due_amount']").val(due.toFixed(2));
         }
 

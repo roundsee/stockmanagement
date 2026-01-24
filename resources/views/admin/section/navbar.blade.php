@@ -95,6 +95,15 @@
                 </li>
                 @endif
 
+                @if (Auth::guard('web')->user()->can('unit.menu'))
+                <li class="nav-item">
+                    <a href="{{ route('admin.unit.all') }}" class="nav-link">
+                        <span class="nav-icon"><i class="mdi mdi-scale"></i></span>
+                        <span class="nav-link-title">Units (Satuan)</span>
+                    </a>
+                </li>
+                @endif
+
                 @if (Auth::guard('web')->user()->can('product.menu'))
                 <li>
                     <a href="#productManage" data-bs-toggle="collapse">

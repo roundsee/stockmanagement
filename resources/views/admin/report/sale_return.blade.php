@@ -71,9 +71,9 @@
                         row.warehouse ?? 'N/A',
                         row.product ?? 'N/A',
                         row.quantity ?? 0,
-                        row.net_unit_cost ?? '₹0.00',
+                        row.net_unit_cost ?? 'Rp0.00',
                         row.status ? badge(row.status) : badge(null),
-                        row.grand_total ?? '₹0.00'
+                        row.grand_total ?? 'Rp0.00'
                     ])) : [];
 
                     table.clear();

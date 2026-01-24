@@ -67,7 +67,15 @@
                                                     placeholder="Enter product price">
 
                                             </div>
-
+                                            <div class="mb-3">
+                                                <label class="form-label">Satuan</label>
+                                                <select name="unit_id" class="form-select" required>
+                                                    <option value="">-- Pilih Satuan --</option>
+                                                    @foreach($units as $unit)
+                                                        <option value="{{ $unit->id }}">{{ $unit->name }} ({{ $unit->short_name }})</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
 
                                             <div class="col-md-6 mb-3">
                                                 <label class="form-label">Stock Alert: <span

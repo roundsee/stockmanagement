@@ -44,7 +44,7 @@
                                             <td>{{ $item['warehouse']['name'] }}</td>
                                             <td>{{ $item['customer']['name'] }}</td>
                                             <td>
-                                                <h4> <span class="badge text-bg-secondary">₹{{ $item->due_amount }} </span>
+                                                <h4> <span class="badge text-bg-secondary">Rp{{ $item->due_amount }} </span>
                                                 </h4>
                                             </td>
                                             <td>

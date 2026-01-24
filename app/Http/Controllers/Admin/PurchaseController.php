@@ -9,9 +9,11 @@ use App\Models\PurchaseItem;
 use App\Models\Supplier;
 use App\Models\WareHouse;
 use Illuminate\Http\Request;
+use App\Services\StockService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Barryvdh\DomPDF\Facade\Pdf;
+
 
 class PurchaseController extends Controller
 {
@@ -30,29 +32,32 @@ class PurchaseController extends Controller
 
 
 
-  public function purchaseProductSearch(Request $request)
-  {
-    // dd($request->all());
+public function purchaseProductSearch(Request $request)
+{
     $query = trim($request->input('query'));
     $warehouse_id = $request->input('warehouse_id');
 
-    $products = Product::where(function ($q) use ($query) {
-      $q->where('name', 'like', "%{$query}%")
-        ->orWhere('code', 'like', "%{$query}%");
+    $products = Product::with(['unit' => function($query) {
+        $query->select('id', 'short_name'); // Optimasi: ambil kolom yang perlu saja
+    }])
+    ->where(function ($q) use ($query) {
+        $q->where('name', 'like', "%{$query}%")
+          ->orWhere('code', 'like', "%{$query}%");
     })
-      ->when($warehouse_id, function ($q) use ($warehouse_id) {
+    ->when($warehouse_id, function ($q) use ($warehouse_id) {
         $q->where('warehouse_id', $warehouse_id);
-      })
-      ->select('id', 'name', 'code', 'price', 'product_qty')
-      ->orderBy('name')
-      ->limit(10)
-      ->get();
+    })
+    // PENTING: unit_id harus ada di sini agar relasi terpanggil
+    ->select('id', 'name', 'code', 'price', 'product_qty', 'unit_id')
+    ->orderBy('name')
+    ->limit(10)
+    ->get();
 
     return response()->json($products);
-  }
+}
 
-  // Store Data 
-  public function purchaseStore(Request $request)
+  // Store Data
+  public function purchaseStore(Request $request,StockService $stockService)
   {
     // dd($request->all());
     $validator = Validator::make($request->all(), [
@@ -110,6 +115,15 @@ class PurchaseController extends Controller
           'subtotal' => $subtotal,
         ]);
 
+
+$stockService->updateStock(
+        $productId,      // Benar: pakai variabel lokal loop
+        $request->warehouse_id, // Benar: warehouse sama untuk semua produk
+        $quantity,            // Benar: pakai variabel lokal loop
+        'in',
+        'Purchase #' . $purchase->id,
+        'Pembelian barang'
+    );
         // Update product stock (decrement if stock is used)
         $productModel = Product::where('id', $productId)
           ->where('product_qty', '>=', $quantity)
@@ -119,7 +133,7 @@ class PurchaseController extends Controller
           throw new \Exception("Insufficient stock for product ID: $productId");
         }
 
-        $productModel->decrement('product_qty', $quantity);
+        $productModel->increment('product_qty', $quantity);
       }
 
       DB::commit();
@@ -129,6 +143,12 @@ class PurchaseController extends Controller
         'message' => 'Purchase saved successfully!',
       ]);
     } catch (\Exception $e) {
+            Log::error('Purchase Error', [
+        'message' => $e->getMessage(),
+        'file' => $e->getFile(),
+        'line' => $e->getLine()
+    ]);
+
       DB::rollBack();
 
       return response()->json([
@@ -265,7 +285,7 @@ class PurchaseController extends Controller
   }
 
 
-  // Purchase Invoice 
+  // Purchase Invoice
   public function purchaseInvoice($id)
   {
     $purchase = Purchase::with(['supplier', 'warehouse', 'purchaseItems', 'product'])->find($id);

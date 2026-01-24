@@ -73,9 +73,9 @@
                         row.warehouse ?? 'N/A',
                         row.product ?? 'N/A',
                         row.quantity ?? 0,
-                        row.net_unit_cost ?? '₹0.00', // already formatted by backend
+                        row.net_unit_cost ?? 'Rp0.00', // already formatted by backend
                         row.status ? badge(row.status) : badge(null),
-                        row.grand_total ?? '₹0.00' // already formatted by backend
+                        row.grand_total ?? 'Rp0.00' // already formatted by backend
                     ])) : [];
 
                     table.clear();

@@ -194,18 +194,18 @@
                                                                 <tbody>
                                                                     <tr>
                                                                         <td class="py-3">Discount</td>
-                                                                        <td class="py-3" id="displayDiscount">₹
+                                                                        <td class="py-3" id="displayDiscount">Rp
                                                                             {{ $editData->discount }}</td>
                                                                     </tr>
                                                                     <tr>
                                                                         <td class="py-3">Shipping</td>
-                                                                        <td class="py-3" id="shippingDisplay">₹
+                                                                        <td class="py-3" id="shippingDisplay">Rp
                                                                             {{ $editData->shipping }}</td>
                                                                     </tr>
                                                                     <tr>
                                                                         <td class="py-3 text-primary">Grand Total</td>
                                                                         <td class="py-3 text-primary">
-                                                                            <span id="grandTotal">₹
+                                                                            <span id="grandTotal">Rp
                                                                                 {{ number_format($editData->grand_total, 2) }}</span>
                                                                             <input type="hidden" name="grand_total"
                                                                                 id="grand_total_input"
@@ -233,7 +233,7 @@
                                                                     </tr>
                                                                     <tr class="d-none">
                                                                         <td class="py-3">Due Amount</td>
-                                                                        <td class="py-3" id="dueAmount">₹ 0.00</td>
+                                                                        <td class="py-3" id="dueAmount">Rp 0.00</td>
                                                                         <input type="hidden" name="due_amount">
                                                                     </tr>
 

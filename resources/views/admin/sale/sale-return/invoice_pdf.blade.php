@@ -157,9 +157,9 @@
                     <h5>Sales Info</h5>
                     <p><strong>Date:</strong> {{ $sales->date }} </p>
                     <p><strong>Status:</strong> {{ $sales->status }} </p>
-                    <p><strong>Grand Total:</strong> ₹{{ number_format($sales->grand_total, 2) }} </p>
-                    <p><strong>Paid Amount:</strong> ₹{{ number_format($sales->paid_amount, 2) }} </p>
-                    <p><strong>Due Amount:</strong> ₹{{ number_format($sales->due_amount, 2) }} </p>
+                    <p><strong>Grand Total:</strong> Rp{{ number_format($sales->grand_total, 2) }} </p>
+                    <p><strong>Paid Amount:</strong> Rp{{ number_format($sales->paid_amount, 2) }} </p>
+                    <p><strong>Due Amount:</strong> Rp{{ number_format($sales->due_amount, 2) }} </p>
                 </td>
             </tr>
         </table>
@@ -182,9 +182,9 @@
                         <td>{{ $key + 1 }}</td>
                         <td>{{ $item->product->name }}</td>
                         <td>{{ $item->quantity }}</td>
-                        <td>₹{{ number_format($item->net_unit_cost, 2) }}</td>
-                        <td>₹{{ number_format($item->discount, 2) }}</td>
-                        <td>₹{{ number_format($item->subtotal, 2) }}</td>
+                        <td>Rp{{ number_format($item->net_unit_cost, 2) }}</td>
+                        <td>Rp{{ number_format($item->discount, 2) }}</td>
+                        <td>Rp{{ number_format($item->subtotal, 2) }}</td>
                     </tr>
                 @endforeach
             </tbody>
@@ -192,13 +192,13 @@
 
         <table class="summary-table">
             <tr>
-                <td><strong>Total Discount:</strong> ₹{{ number_format($sales->discount, 2) }} </td>
+                <td><strong>Total Discount:</strong> Rp{{ number_format($sales->discount, 2) }} </td>
             </tr>
             <tr>
-                <td><strong>Shipping Cost:</strong> ₹{{ number_format($sales->shipping, 2) }} </td>
+                <td><strong>Shipping Cost:</strong> Rp{{ number_format($sales->shipping, 2) }} </td>
             </tr>
             <tr>
-                <td><strong>Grand Total:</strong> ₹{{ number_format($sales->grand_total, 2) }} </td>
+                <td><strong>Grand Total:</strong> Rp{{ number_format($sales->grand_total, 2) }} </td>
             </tr>
         </table>
     </div>

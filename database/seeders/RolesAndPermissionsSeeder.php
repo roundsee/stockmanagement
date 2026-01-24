@@ -87,6 +87,12 @@ class RolesAndPermissionsSeeder extends Seeder
             // Role & Permission (Super Admin)
             'role.permission.manage',
             'admin.user.manage',
+
+            //Units
+            'unit.all',
+            'unit.store',
+            'unit.update',
+            'unit.delete',
         ];
 
         // Buat semua permission
@@ -112,6 +118,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'Sale.menu', 'All.sale',
             'due.menu', 'All.due',
             'transfer.menu', 'All.transfer',
+            'unit.menu', 'All.unit',
             'report.menu', 'All.report',
         ]);
 

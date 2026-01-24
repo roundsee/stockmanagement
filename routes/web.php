@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\TransferController;
 use App\Http\Controllers\Admin\WareHouseController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\UnitController;
 
 Route::get('/', function () {
     return redirect()->route('admin.login');
@@ -98,6 +99,20 @@ Route::prefix('admin')->as('admin.')->middleware(['auth', 'verified'])->group(fu
         Route::post('/category-update/{id}', 'update')->name('category.update');
         Route::delete('/category-delete/{id}', 'delete')->name('category.delete');
     });
+
+
+    Route::middleware(['auth'])->group(function () {
+
+        // Route untuk CRUD Satuan
+        Route::controller(UnitController::class)->group(function(){
+            Route::get('/unit-list', 'index')->name('unit.all');
+            Route::post('/unit-store', 'store')->name('unit.store');
+            Route::post('/unit-update', 'update')->name('unit.update');
+            Route::get('/unit-delete/{id}', 'destroy')->name('unit.delete');
+        });
+
+    });
+
     //*** All Product Route ***//
 
     Route::controller(ProductController::class)->group(function () {
@@ -115,7 +130,7 @@ Route::prefix('admin')->as('admin.')->middleware(['auth', 'verified'])->group(fu
         Route::post('product-update/{id}', 'productUpdate')->name('all-products.update');
     });
 
-    // Purchase Controller 
+    // Purchase Controller
     Route::controller(PurchaseController::class)->group(function () {
         Route::get('all-purchase', 'index')->name('all-purchase');
         Route::get('create-purchase', 'create')->name('create-purchase');
@@ -128,7 +143,7 @@ Route::prefix('admin')->as('admin.')->middleware(['auth', 'verified'])->group(fu
         Route::get('purchase/invoice/{id}', 'purchaseInvoice')->name('purchaseInvoice');
     });
 
-    //Purchase Return Controller 
+    //Purchase Return Controller
     Route::controller(ReturnPurchaseController::class)->group(function () {
         Route::get('all-purchase-return', 'index')->name('all-purchase-return');
         Route::get('create-purchase-return', 'create')->name('create-purchase-return');
@@ -187,10 +202,10 @@ Route::prefix('admin')->as('admin.')->middleware(['auth', 'verified'])->group(fu
         Route::get('purchase-return/reports', 'purchaseReturn')->name('purchase-return.reports');
         Route::get('purchases-return/filter',  'filterPurchaseReturn')->name('purchases-return.filter');
 
-        //Sale 
+        //Sale
         Route::get('sale/report', 'saleReport')->name('sale.report');
         Route::get('sale/filter', 'filterSale')->name('sale.filter');
-        //Sale Return  
+        //Sale Return
         Route::get('sale-return/report', 'saleReturnReports')->name('sale-return.reports');
         Route::get('sale-return/filter', 'saleReturnFilter')->name('sale-return.filter');
 

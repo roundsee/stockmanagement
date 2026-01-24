@@ -80,8 +80,8 @@
             <td>
                 ${productCode} - ${productName}
                 <button type="button" class="btn btn-primary btn-sm edit-discount-btn"
-                    data-id="${productId}" 
-                    data-name="${productName}" 
+                    data-id="${productId}"
+                    data-name="${productName}"
                     data-cost="${netUnitCost}">
                     <span class="mdi mdi-book-edit"></span>
                 </button>
@@ -189,7 +189,7 @@
                grandTotal = grandTotal - discount + shipping;
                if (grandTotal < 0) grandTotal = 0;
 
-               $("#grandTotal").text(`₹ ${grandTotal.toFixed(2)}`);
+               $("#grandTotal").text(`Rp ${grandTotal.toFixed(2)}`);
                $("input[name='grand_total']").val(grandTotal.toFixed(2));
            }
 
@@ -220,7 +220,7 @@
 
            function showModal(productName, productPrice, productId) {
                $("#modalTitle").text(productName);
-               $("#modalPrice").val("₹ " + productPrice);
+               $("#modalPrice").val("Rp " + productPrice);
                $("#modalDiscount").val("0.00");
                $("#modalDiscountType").val("fixed");
                $("#customModal").data("id", productId).css("display", "flex");
@@ -239,7 +239,7 @@
            });
 
            $(document).on("click", "#saveChanges", function() {
-               const updatedPrice = parseFloat($("#modalPrice").val().replace(/[₹\s]/g, "")) || 0;
+               const updatedPrice = parseFloat($("#modalPrice").val().replace(/[Rp\s]/g, "")) || 0;
                const discountValue = parseFloat($("#modalDiscount").val()) || 0;
                const discountType = $("#modalDiscountType").val();
                const productId = $("#customModal").data("id");
