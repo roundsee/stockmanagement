@@ -32,92 +32,106 @@
                }
            });
 
-           function fetchProducts(query, warehouseId) {
-               $.get(productSearchUrl, {
-                   query: query,
-                   warehouse_id: warehouseId
-               }, function(data) {
-                   productList.html("");
-                   if (data.length > 0) {
-                       $.each(data, function(index, product) {
-                           const item = `
+        function fetchProducts(query, warehouseId) {
+            $.get(productSearchUrl, {
+                query: query,
+                warehouse_id: warehouseId
+            }, function(data) {
+                productList.html("");
+                if (data.length > 0) {
+                    $.each(data, function(index, product) {
+                        // 1. Ambil short_name dari object unit.
+                        // Gunakan optional chaining (?.) atau pengecekan manual agar tidak error jika unit null
+                        const unitName = (product.unit && product.unit.short_name) ? product.unit.short_name : '-';
+
+                        const item = `
                         <a href="#" class="list-group-item list-group-item-action product-item"
                             data-id="${product.id}"
                             data-code="${product.code}"
                             data-name="${product.name}"
                             data-cost="${product.price}"
-                            data-stock="${product.product_qty}">
-                            ${product.code} - ${product.name}
+                            data-stock="${product.product_qty}"
+                            data-unit="${unitName}"> <div class="d-flex justify-content-between">
+                                <span>${product.code} - ${product.name}</span>
+                                <small class="text-muted">${unitName}</small> </div>
                         </a>`;
-                           productList.append(item);
-                       });
+                        productList.append(item);
+                    });
 
-                       $(".product-item").on("click", function(e) {
-                           e.preventDefault();
-                           addProductToTable($(this));
-                       });
+                    // Re-bind event click
+                    $(".product-item").off("click").on("click", function(e) {
+                        e.preventDefault();
+                        addProductToTable($(this));
+                    });
 
-                   } else {
-                       productList.html('<p class="text-muted">No Product Found</p>');
-                   }
-               });
-           }
+                } else {
+                    productList.html('<p class="text-muted">No Product Found</p>');
+                }
+            });
+        }
 
            function addProductToTable($product) {
-               const productId = $product.data("id");
-               const productCode = $product.data("code");
-               const productName = $product.data("name");
-               const netUnitCost = parseFloat($product.data("cost"));
-               const stock = parseInt($product.data("stock"));
+    const productId = $product.data("id");
+    const productCode = $product.data("code");
+    const productName = $product.data("name");
+    const productUnit = $product.data("unit"); // Ambil nama satuan untuk tampilan
 
-               if ($(`tr[data-id="${productId}"]`).length > 0) {
-                   alert("Product already added.");
-                   return;
-               }
+    const netUnitCost = parseFloat($product.data("cost"));
+    const stock = parseInt($product.data("stock"));
 
-               const row = `
-        <tr data-id="${productId}">
-            <td>
-                ${productCode} - ${productName}
-                <button type="button" class="btn btn-primary btn-sm edit-discount-btn"
-                    data-id="${productId}" 
-                    data-name="${productName}" 
-                    data-cost="${netUnitCost}">
-                    <span class="mdi mdi-book-edit"></span>
-                </button>
-                <input type="hidden" name="products[${productId}][id]" value="${productId}">
-                <input type="hidden" name="products[${productId}][name]" value="${productName}">
-                <input type="hidden" name="products[${productId}][code]" value="${productCode}">
-            </td>
-            <td>
-                ${netUnitCost.toFixed(2)}
-                <input type="hidden" name="products[${productId}][cost]" value="${netUnitCost}">
-            </td>
-            <td style="color:#ffc121">${stock}</td>
-            <td>
-                <div class="input-group">
-                    <button class="btn btn-outline-secondary decrement-qty" type="button">−</button>
-                    <input type="text" class="form-control text-center qty-input"
-                        name="products[${productId}][quantity]" value="1" min="1" max="${stock}"
-                        data-cost="${netUnitCost}" style="width: 30px;">
-                    <button class="btn btn-outline-secondary increment-qty" type="button">+</button>
-                </div>
-            </td>
-            <td>
-                <input type="number" class="form-control discount-input"
-                    name="products[${productId}][discount]" value="0" min="0" style="width:100px">
-                <input type="hidden" name="products[${productId}][discount_type]" value="fixed">
-            </td>
-            <td class="subtotal">${netUnitCost.toFixed(2)}</td>
-            <td><button class="btn btn-danger btn-sm remove-product"><span class="mdi mdi-delete-circle mdi-18px"></span></button></td>
-        </tr>`;
+    if ($(`tr[data-id="${productId}"]`).length > 0) {
+        alert("Product already added.");
+        return;
+    }
 
-               orderItemsTableBody.append(row);
-               productList.html("");
-               productSearchInput.val("");
-               updateEvents();
-               updateGrandTotal();
-           }
+    const row = `
+    <tr data-id="${productId}">
+        <td>
+            ${productCode} - ${productName}
+            <button type="button" class="btn btn-primary btn-sm edit-discount-btn"
+                data-id="${productId}"
+                data-name="${productName}"
+                data-cost="${netUnitCost}">
+                <span class="mdi mdi-book-edit"></span>
+            </button>
+            <input type="hidden" name="products[${productId}][id]" value="${productId}">
+        </td>
+        <td>
+            ${netUnitCost.toFixed(2)}
+            <input type="hidden" name="products[${productId}][cost]" value="${netUnitCost}">
+        </td>
+        <td style="color:#ffc121">
+            ${stock} <small class="text-muted">(${productUnit})</small>
+        </td>
+        <td>
+            <div class="input-group">
+                <button class="btn btn-outline-secondary decrement-qty" type="button">−</button>
+                <input type="text" class="form-control text-center qty-input"
+                    name="products[${productId}][quantity]" value="1" min="1" max="${stock}"
+                    data-cost="${netUnitCost}" style="width: 40px;">
+                <button class="btn btn-outline-secondary increment-qty" type="button">+</button>
+                <span class="input-group-text bg-light" style="font-size: 11px;">${productUnit}</span>
+            </div>
+        </td>
+        <td>
+            <input type="number" class="form-control discount-input"
+                name="products[${productId}][discount]" value="0" min="0" style="width:100px">
+            <input type="hidden" name="products[${productId}][discount_type]" value="fixed">
+        </td>
+        <td class="subtotal">${netUnitCost.toFixed(2)}</td>
+        <td>
+            <button class="btn btn-danger btn-sm remove-product">
+                <span class="mdi mdi-delete-circle mdi-18px"></span>
+            </button>
+        </td>
+    </tr>`;
+
+    orderItemsTableBody.append(row);
+    productList.html("");
+    productSearchInput.val("");
+    updateEvents();
+    updateGrandTotal();
+}
 
            function updateEvents() {
                $(".qty-input").off("input").on("input", function() {
@@ -189,7 +203,7 @@
                grandTotal = grandTotal - discount + shipping;
                if (grandTotal < 0) grandTotal = 0;
 
-               $("#grandTotal").text(`₹ ${grandTotal.toFixed(2)}`);
+               $("#grandTotal").text(`Rp ${grandTotal.toFixed(2)}`);
                $("input[name='grand_total']").val(grandTotal.toFixed(2));
            }
 
@@ -220,7 +234,7 @@
 
            function showModal(productName, productPrice, productId) {
                $("#modalTitle").text(productName);
-               $("#modalPrice").val("₹ " + productPrice);
+               $("#modalPrice").val("Rp " + productPrice);
                $("#modalDiscount").val("0.00");
                $("#modalDiscountType").val("fixed");
                $("#customModal").data("id", productId).css("display", "flex");
@@ -239,7 +253,7 @@
            });
 
            $(document).on("click", "#saveChanges", function() {
-               const updatedPrice = parseFloat($("#modalPrice").val().replace(/[₹\s]/g, "")) || 0;
+               const updatedPrice = parseFloat($("#modalPrice").val().replace(/[Rp\s]/g, "")) || 0;
                const discountValue = parseFloat($("#modalDiscount").val()) || 0;
                const discountType = $("#modalDiscountType").val();
                const productId = $("#customModal").data("id");

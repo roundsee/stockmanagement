@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Log;
 
 class SaleController extends Controller
 {
@@ -70,42 +71,44 @@ class SaleController extends Controller
 
 
       // Loop through products
-      foreach ($request->products as $productId => $product) {
-        $quantity = $product['quantity'];
-        $cost = $product['cost'];
-        $discount = $product['discount'] ?? 0;
-        $subtotal = ($cost * $quantity) - $discount;
+      foreach ($request->products as $key => $productData) {
+    // AMBIL DATA DARI ARRAY $product, BUKAN DARI $request
+$currentProductId = $productData['id'];
+    $currentQty       = $productData['quantity'];
+    $currentCost      = $productData['cost'];
+    $currentDiscount  = $productData['discount'] ?? 0;
+            $subtotal = ($currentCost * $currentQty) - $currentDiscount;
 
         // Create Purchase Item
         SaleItem::create([
           'sale_id' => $sale->id,
-          'product_id' => $productId,
-          'net_unit_cost' => $cost,
-          'stock' => $quantity,
-          'quantity' => $quantity,
-          'discount' => $discount,
+          'product_id' => $currentProductId,
+          'net_unit_cost' => $currentCost,
+          'stock' => $currentQty,
+          'quantity' => $currentQty,
+          'discount' => $currentDiscount,
           'subtotal' => $subtotal,
         ]);
 
-        $stockService->updateStock(
-        $request->product_id,
-        $request->warehouse_id,
-        $request->qty,
+$stockService->updateStock(
+        $currentProductId,      // Benar: pakai variabel lokal loop
+        $request->warehouse_id, // Benar: warehouse sama untuk semua produk
+        $currentQty,            // Benar: pakai variabel lokal loop
         'out',
-        'Sale #' . $sale->invoice_no,
-        'Potong stok penjualan customer'
+        'Sale #' . $sale->id,
+        'Penjualan barang'
     );
 
         // Update product stock (decrement if stock is used)
-        $productModel = Product::where('id', $productId)
-          ->where('product_qty', '>=', $quantity)
+        $productModel = Product::where('id', $currentProductId)
+          ->where('product_qty', '>=', $currentQty)
           ->first();
 
         if (!$productModel) {
-          throw new \Exception("Insufficient stock for product ID: $productId");
+          throw new \Exception("Insufficient stock for product ID: $currentProductId");
         }
 
-        $productModel->decrement('product_qty', $quantity);
+        $productModel->decrement('product_qty', $currentQty);
       }
 
       DB::commit();
@@ -115,6 +118,11 @@ class SaleController extends Controller
         'message' => 'Sale saved successfully!',
       ]);
     } catch (\Exception $e) {
+      Log::error('Sale Error', [
+        'message' => $e->getMessage(),
+        'file' => $e->getFile(),
+        'line' => $e->getLine()
+    ]);
       DB::rollBack();
 
       return response()->json([

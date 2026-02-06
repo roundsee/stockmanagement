@@ -46,7 +46,7 @@
                                 <li class="list-group-item"><strong>Category:</strong>
                                     {{ $product->category->category_name }} </li>
                                 <li class="list-group-item"><strong>Brand:</strong> {{ $product->brand->name }} </li>
-                                <li class="list-group-item"><strong>Price:</strong> ₹ {{ $product->price }} </li>
+                                <li class="list-group-item"><strong>Price:</strong> Rp {{ $product->price }} </li>
                                 <li class="list-group-item"><strong>Stock Aleart:</strong> {{ $product->stock_alert }} </li>
                                 <li class="list-group-item"><strong>Product Qty:</strong> {{ $product->product_qty }} </li>
                                 <li class="list-group-item"><strong>Product Status:</strong> {{ $product->status }} </li>

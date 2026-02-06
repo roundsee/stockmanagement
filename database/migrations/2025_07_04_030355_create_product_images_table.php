@@ -20,6 +20,8 @@ return new class extends Migration
             $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
             $table->timestamps();
         });
+
+        $table->foreignId('unit_id')->nullable()->constrained('units')->onDelete('set null');
     }
 
     /**

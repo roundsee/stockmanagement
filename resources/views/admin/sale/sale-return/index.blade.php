@@ -45,13 +45,13 @@
                                             <td>{{ $key + 1 }}</td>
                                             <td>{{ $item->warehouse->name }}</td>
                                             <td>{{ $item->status }}</td>
-                                            <td>₹{{ $item->grand_total }}</td>
+                                            <td>Rp{{ $item->grand_total }}</td>
                                             <td>
-                                                <h4> <span class="badge text-bg-info">₹{{ $item->paid_amount }} </span>
+                                                <h4> <span class="badge text-bg-info">Rp{{ $item->paid_amount }} </span>
                                                 </h4>
                                             </td>
                                             <td>
-                                                <h4> <span class="badge text-bg-secondary">₹{{ $item->due_amount }} </span>
+                                                <h4> <span class="badge text-bg-secondary">Rp{{ $item->due_amount }} </span>
                                                 </h4>
                                             </td>
                                             <td>{{ \Carbon\Carbon::parse($item->created_at)->format('Y-m-d') }}</td>

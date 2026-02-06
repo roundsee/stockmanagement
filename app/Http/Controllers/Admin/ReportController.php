@@ -76,9 +76,9 @@ class ReportController extends Controller
                     'warehouse'     => optional($purchase->warehouse)->name ?? 'N/A',
                     'product'       => optional($item->product)->name ?? 'N/A',
                     'quantity'      => $item->quantity ?? 0,
-                    'net_unit_cost' => '₹' . number_format((float)($item->net_unit_cost ?? 0), 2, '.', ','),
+                    'net_unit_cost' => 'Rp' . number_format((float)($item->net_unit_cost ?? 0), 2, '.', ','),
                     'status'        => $purchase->status ?? 'N/A',
-                    'grand_total'   => '₹' . number_format((float)($purchase->grand_total ?? 0), 2, '.', ','),
+                    'grand_total'   => 'Rp' . number_format((float)($purchase->grand_total ?? 0), 2, '.', ','),
                 ];
             }
         }
@@ -148,9 +148,9 @@ class ReportController extends Controller
                     'warehouse'     => optional($purchaseReturn->warehouse)->name ?? 'N/A',
                     'product'       => optional($item->product)->name ?? 'N/A',
                     'quantity'      => $item->quantity ?? 0,
-                    'net_unit_cost' => '₹' . number_format((float)($item->net_unit_cost ?? 0), 2, '.', ','),
+                    'net_unit_cost' => 'Rp' . number_format((float)($item->net_unit_cost ?? 0), 2, '.', ','),
                     'status'        => $purchaseReturn->status ?? 'N/A',
-                    'grand_total'   => '₹' . number_format((float)($purchaseReturn->grand_total ?? 0), 2, '.', ','),
+                    'grand_total'   => 'Rp' . number_format((float)($purchaseReturn->grand_total ?? 0), 2, '.', ','),
                 ];
             }
         }
@@ -203,9 +203,9 @@ class ReportController extends Controller
                     'warehouse'     => $sale->warehouse->name ?? ' ',
                     'product'       => $item->product->name ?? ' ',
                     'quantity'      => $item->quantity ?? ' ',
-                    'net_unit_cost' => '₹' . number_format((float)($item->net_unit_cost ?? 0), 2, '.', ','),
+                    'net_unit_cost' => 'Rp' . number_format((float)($item->net_unit_cost ?? 0), 2, '.', ','),
                     'status'        => $sale->status ?? ' ',
-                    'grand_total'   => '₹' . number_format((float)($sale->grand_total ?? 0), 2, '.', ','),
+                    'grand_total'   => 'Rp' . number_format((float)($sale->grand_total ?? 0), 2, '.', ','),
                 ];
             }
         }
@@ -274,9 +274,9 @@ class ReportController extends Controller
                     'warehouse'     => optional($saleReturn->warehouse)->name ?? 'N/A',
                     'product'       => optional($item->product)->name ?? 'N/A',
                     'quantity'      => $item->quantity ?? 0,
-                    'net_unit_cost' => '₹' . number_format((float)($item->net_unit_cost ?? 0), 2, '.', ','),
+                    'net_unit_cost' => 'Rp' . number_format((float)($item->net_unit_cost ?? 0), 2, '.', ','),
                     'status'        => $saleReturn->status ?? 'N/A',
-                    'grand_total'   => '₹' . number_format((float)($saleReturn->grand_total ?? 0), 2, '.', ','),
+                    'grand_total'   => 'Rp' . number_format((float)($saleReturn->grand_total ?? 0), 2, '.', ','),
                 ];
             }
         }

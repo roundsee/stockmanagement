@@ -32,7 +32,7 @@
             grandTotal = grandTotal - discount + shipping;
             grandTotal = Math.max(grandTotal, 0);
 
-            $('#grandTotal').text(`₹ ${grandTotal.toFixed(2)}`);
+            $('#grandTotal').text(`Rp ${grandTotal.toFixed(2)}`);
             $('#grand_total_input').val(grandTotal.toFixed(2));
         }
 

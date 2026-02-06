@@ -44,7 +44,7 @@
                                             <td>{{ $key + 1 }}</td>
                                             <td>{{ $item->warehouse->name }}</td>
                                             <td>{{ $item->status }}</td>
-                                            <td>₹{{ $item->grand_total }}</td>
+                                            <td>Rp{{ $item->grand_total }}</td>
                                             <td>Cash</td>
                                             <td>{{ \Carbon\Carbon::parse($item->created_at)->format('Y-m-d') }}</td>
                                             <td>

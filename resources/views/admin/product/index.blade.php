@@ -36,6 +36,7 @@
                                         <th>Sl</th>
                                         <th>Image</th>
                                         <th>Name</th>
+                                        <th>Satuan</th>
                                         <th>Warehouse</th>
                                         <th>Price</th>
                                         <th>In Stock</th>
@@ -54,6 +55,7 @@
                                                 <img src="{{ asset($primaryImage) }}" alt="img" width="40px">
                                             </td>
                                             <td>{{ $item->name }}</td>
+                                            <td>{{ $item->unit->name ?? 'N/A' }}</td> {{-- Menampilkan Nama Satuan --}}
                                             <td>{{ $item->warehouse->name }}</td>
                                             <td>{{ $item->price }}</td>
                                             <td>
@@ -66,7 +68,7 @@
                                                 @endif
                                             </td>
                                             <td>
-                                                 
+
                                                 <a title="Details"
                                                     href="{{ route('admin.get.products.details', $item->id) }}"
                                                     class="btn btn-info btn-sm"> <span
